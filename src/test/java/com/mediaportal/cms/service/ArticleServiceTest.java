@@ -1,12 +1,13 @@
 package com.mediaportal.cms.service;
 
-import com.mediaportal.cms.dto.article.ArticleCreateRequest;
 import com.mediaportal.cms.dto.article.ArticleResponse;
-import com.mediaportal.cms.dto.article.ArticleUpdateRequest;
+import com.mediaportal.cms.dto.article.CreateArticleRequest;
+import com.mediaportal.cms.dto.article.UpdateArticleRequest;
 import com.mediaportal.cms.model.Article;
-import com.mediaportal.cms.model.ContentType;
 import com.mediaportal.cms.model.User;
+import com.mediaportal.cms.model.Role;
 import com.mediaportal.cms.repository.ArticleRepository;
+import com.mediaportal.cms.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,6 +29,7 @@ import static org.mockito.Mockito.*;
 
 /**
  * Unit tests for ArticleService.
+ * Tests CRUD operations for articles.
  */
 @ExtendWith(MockitoExtension.class)
 class ArticleServiceTest {
@@ -36,7 +38,7 @@ class ArticleServiceTest {
     private ArticleRepository articleRepository;
 
     @Mock
-    private AnalyticsService analyticsService;
+    private UserRepository userRepository;
 
     @InjectMocks
     private ArticleService articleService;
@@ -46,17 +48,23 @@ class ArticleServiceTest {
 
     @BeforeEach
     void setUp() {
+        // Create test user using setters (avoid builder issues with inheritance)
         testUser = new User();
         testUser.setId(1L);
-        testUser.setEmail("author@test.com");
-        testUser.setName("Test Author");
+        testUser.setUsername("testuser");
+        testUser.setEmail("test@example.com");
+        testUser.setPassword("password");
+        testUser.setRole(Role.USER);
+        testUser.setIsActive(true);
 
+        // Create test article using setters
         testArticle = new Article();
         testArticle.setId(1L);
         testArticle.setTitle("Test Article");
-        testArticle.setContent("Test content");
-        testArticle.setAuthor("Test Author");
-        testArticle.setPublished(true);
+        testArticle.setText("Test content for the article");
+        testArticle.setAuthor(testUser);
+        testArticle.setIsPublished(true);
+        testArticle.setPublishedAt(LocalDateTime.now());
         testArticle.setViewCount(0L);
         testArticle.setCreatedAt(LocalDateTime.now());
         testArticle.setUpdatedAt(LocalDateTime.now());
@@ -66,11 +74,12 @@ class ArticleServiceTest {
     @DisplayName("Should create article successfully")
     void create_ShouldSaveAndReturnArticle() {
         // Given
-        ArticleCreateRequest request = new ArticleCreateRequest();
+        CreateArticleRequest request = new CreateArticleRequest();
         request.setTitle("New Article");
-        request.setContent("Article content");
-        request.setTags(Arrays.asList("java", "spring"));
+        request.setText("Article content");
+        request.setIsPublished(true);
 
+        when(userRepository.findById(1L)).thenReturn(Optional.of(testUser));
         when(articleRepository.save(any(Article.class))).thenAnswer(invocation -> {
             Article saved = invocation.getArgument(0);
             saved.setId(1L);
@@ -80,24 +89,38 @@ class ArticleServiceTest {
         });
 
         // When
-        ArticleResponse response = articleService.create(request, testUser);
+        ArticleResponse response = articleService.create(request, 1L);
 
         // Then
         assertNotNull(response);
         assertEquals("New Article", response.getTitle());
-        assertEquals("Test Author", response.getAuthor());
+        assertEquals("testuser", response.getAuthorUsername());
         
         ArgumentCaptor<Article> captor = ArgumentCaptor.forClass(Article.class);
         verify(articleRepository).save(captor.capture());
-        assertEquals("Article content", captor.getValue().getContent());
+        assertEquals("Article content", captor.getValue().getText());
     }
 
     @Test
-    @DisplayName("Should get article by ID and increment view count")
-    void getById_ShouldReturnArticleAndIncrementViews() {
+    @DisplayName("Should throw exception when creating article with non-existent user")
+    void create_WhenUserNotFound_ShouldThrowException() {
+        // Given
+        CreateArticleRequest request = new CreateArticleRequest();
+        request.setTitle("New Article");
+        request.setText("Content");
+
+        when(userRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // When/Then
+        assertThrows(EntityNotFoundException.class, () -> articleService.create(request, 99L));
+        verify(articleRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("Should get article by ID")
+    void getById_ShouldReturnArticle() {
         // Given
         when(articleRepository.findById(1L)).thenReturn(Optional.of(testArticle));
-        when(articleRepository.save(any(Article.class))).thenReturn(testArticle);
 
         // When
         ArticleResponse response = articleService.getById(1L);
@@ -105,8 +128,8 @@ class ArticleServiceTest {
         // Then
         assertNotNull(response);
         assertEquals("Test Article", response.getTitle());
-        verify(analyticsService).incrementViewCount(ContentType.ARTICLE, 1L);
-        verify(articleRepository).save(testArticle);
+        assertEquals("Test content for the article", response.getText());
+        assertEquals("testuser", response.getAuthorUsername());
     }
 
     @Test
@@ -126,7 +149,9 @@ class ArticleServiceTest {
         Article article2 = new Article();
         article2.setId(2L);
         article2.setTitle("Second Article");
-        article2.setAuthor("Author 2");
+        article2.setText("Second content");
+        article2.setAuthor(testUser);
+        article2.setIsPublished(false);
         article2.setCreatedAt(LocalDateTime.now());
         article2.setUpdatedAt(LocalDateTime.now());
 
@@ -137,29 +162,32 @@ class ArticleServiceTest {
 
         // Then
         assertEquals(2, result.size());
+        assertEquals("Test Article", result.get(0).getTitle());
+        assertEquals("Second Article", result.get(1).getTitle());
     }
 
     @Test
     @DisplayName("Should get published articles only")
     void getPublished_ShouldReturnOnlyPublishedArticles() {
         // Given
-        when(articleRepository.findByPublishedTrue()).thenReturn(List.of(testArticle));
+        when(articleRepository.findByIsPublishedTrue()).thenReturn(List.of(testArticle));
 
         // When
         List<ArticleResponse> result = articleService.getPublished();
 
         // Then
         assertEquals(1, result.size());
-        verify(articleRepository).findByPublishedTrue();
+        assertTrue(result.get(0).getIsPublished());
+        verify(articleRepository).findByIsPublishedTrue();
     }
 
     @Test
     @DisplayName("Should update article successfully")
     void update_ShouldUpdateAndReturnArticle() {
         // Given
-        ArticleUpdateRequest request = new ArticleUpdateRequest();
+        UpdateArticleRequest request = new UpdateArticleRequest();
         request.setTitle("Updated Title");
-        request.setContent("Updated content");
+        request.setText("Updated content");
 
         when(articleRepository.findById(1L)).thenReturn(Optional.of(testArticle));
         when(articleRepository.save(any(Article.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -169,7 +197,42 @@ class ArticleServiceTest {
 
         // Then
         assertEquals("Updated Title", response.getTitle());
+        assertEquals("Updated content", response.getText());
         verify(articleRepository).save(any(Article.class));
+    }
+
+    @Test
+    @DisplayName("Should update article to published and set publishedAt")
+    void update_WhenPublishing_ShouldSetPublishedAt() {
+        // Given
+        testArticle.setIsPublished(false);
+        testArticle.setPublishedAt(null);
+        
+        UpdateArticleRequest request = new UpdateArticleRequest();
+        request.setIsPublished(true);
+
+        when(articleRepository.findById(1L)).thenReturn(Optional.of(testArticle));
+        when(articleRepository.save(any(Article.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        ArticleResponse response = articleService.update(1L, request);
+
+        // Then
+        assertTrue(response.getIsPublished());
+        assertNotNull(response.getPublishedAt());
+    }
+
+    @Test
+    @DisplayName("Should throw exception when updating non-existent article")
+    void update_WhenNotFound_ShouldThrowException() {
+        // Given
+        UpdateArticleRequest request = new UpdateArticleRequest();
+        request.setTitle("New Title");
+
+        when(articleRepository.findById(99L)).thenReturn(Optional.empty());
+
+        // When/Then
+        assertThrows(EntityNotFoundException.class, () -> articleService.update(99L, request));
     }
 
     @Test
@@ -197,13 +260,13 @@ class ArticleServiceTest {
     }
 
     @Test
-    @DisplayName("Should search articles by keyword")
-    void searchByKeyword_ShouldReturnMatchingArticles() {
+    @DisplayName("Should search articles by title")
+    void search_ShouldReturnMatchingArticles() {
         // Given
-        when(articleRepository.searchByKeyword("test")).thenReturn(List.of(testArticle));
+        when(articleRepository.findByTitleContainingIgnoreCase("test")).thenReturn(List.of(testArticle));
 
         // When
-        List<ArticleResponse> result = articleService.searchByKeyword("test");
+        List<ArticleResponse> result = articleService.search("test");
 
         // Then
         assertEquals(1, result.size());
@@ -211,15 +274,15 @@ class ArticleServiceTest {
     }
 
     @Test
-    @DisplayName("Should get articles by author")
-    void getByAuthor_ShouldReturnAuthorArticles() {
+    @DisplayName("Should return empty list when no articles match search")
+    void search_WhenNoMatch_ShouldReturnEmptyList() {
         // Given
-        when(articleRepository.findByAuthor("Test Author")).thenReturn(List.of(testArticle));
+        when(articleRepository.findByTitleContainingIgnoreCase("nonexistent")).thenReturn(List.of());
 
         // When
-        List<ArticleResponse> result = articleService.getByAuthor("Test Author");
+        List<ArticleResponse> result = articleService.search("nonexistent");
 
         // Then
-        assertEquals(1, result.size());
+        assertTrue(result.isEmpty());
     }
 }

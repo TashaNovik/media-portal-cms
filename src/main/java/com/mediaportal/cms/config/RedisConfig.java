@@ -16,10 +16,6 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Redis configuration for caching, analytics, and recommendations.
- * Implements TTL (Time To Live) for different cache types.
- */
 @Configuration
 @EnableCaching
 public class RedisConfig {

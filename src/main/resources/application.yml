@@ -3,7 +3,7 @@ spring:
     name: media-portal-cms
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/media_portal
+    url: jdbc:postgresql://localhost:5440/media_portal
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
