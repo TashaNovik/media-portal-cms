@@ -1,7 +1,7 @@
 # Media Portal CMS
 
 > CMS-система для медиа-портала с поддержкой статей, видео и подкастов.
-> Проект выполнен в рамках курсов "Java" и "Нереляционные базы данных" МФТИ.
+> Проект выполнен в рамках курсов "язык Java" и "Нереляционные базы данных" МФТИ.
 
 ## 📋 Содержание
 
@@ -103,15 +103,15 @@ java -jar target/media-portal-cms-0.0.1-SNAPSHOT.jar
 ### Пример использования
 
 ```bash
-# Регистрация
+# Регистрация (требуются username, email, password)
 curl -X POST http://localhost:8080/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"password123","name":"Test User"}'
+  -d '{"username":"testuser","email":"user@example.com","password":"password123","firstName":"Test","lastName":"User"}'
 
-# Вход (получение токена)
+# Вход (получение токена) - используется username
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"user@example.com","password":"password123"}'
+  -d '{"username":"testuser","password":"password123"}'
 
 # Создание статьи (с токеном)
 curl -X POST http://localhost:8080/api/articles \
@@ -125,6 +125,17 @@ curl -X POST http://localhost:8080/api/analytics/view/ARTICLE/1
 # Получение топ контента
 curl http://localhost:8080/api/recommendations/all
 ```
+
+### Авторизация в Swagger UI
+
+1. Откройте http://localhost:8080/swagger-ui/index.html
+2. Выполните `POST /api/auth/register` для регистрации
+3. Выполните `POST /api/auth/login` с вашим username и password
+4. Скопируйте значение `token` из ответа
+5. Нажмите кнопку **Authorize** 🔓 в правом верхнем углу
+6. Введите токен в поле (без слова "Bearer", только сам токен)
+7. Нажмите **Authorize**, затем **Close**
+8. Теперь все защищённые эндпоинты доступны (POST /api/videos, POST /api/podcasts и т.д.)
 
 ## 🎬 Демонстрация сценария использования
 
@@ -149,14 +160,14 @@ mvn spring-boot:run
 # Регистрация нового пользователя
 curl -X POST http://localhost:8080/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{"email":"demo@test.com","password":"demo123","name":"Demo User"}'
+  -d '{"username":"demouser","email":"demo@test.com","password":"demo123","firstName":"Demo","lastName":"User"}'
 
 # Вход и получение JWT токена
 curl -X POST http://localhost:8080/api/auth/login \
   -H "Content-Type: application/json" \
-  -d '{"email":"demo@test.com","password":"demo123"}'
+  -d '{"username":"demouser","password":"demo123"}'
 
-# Ответ: {"token":"eyJhbGciOiJIUzI1NiJ9...","email":"demo@test.com"}
+# Ответ: {"token":"eyJhbGciOiJIUzI1NiJ9...","username":"demouser","email":"demo@test.com"}
 ```
 
 #### Шаг 4: Создание контента (требуется токен)
