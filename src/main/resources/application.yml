@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: media-portal-cms
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/media_portal
+    username: postgres
+    password: postgres
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000  # 1 час в миллисекундах
+
+# JWT Configuration
+jwt:
+  secret: mySecretKeyForJWTTokenGenerationThatIsAtLeast256BitsLong123456
+  expiration: 86400000  # 24 часа в миллисекундах
+
+# Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+    enabled: true
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+    operationsSorter: method
+
+server:
+  port: 8080
