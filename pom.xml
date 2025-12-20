@@ -91,6 +91,12 @@
             <version>2.3.0</version>
         </dependency>
         
+        <!-- Jackson Java Time Module for LocalDateTime serialization -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+        </dependency>
+        
         <!-- Test -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
