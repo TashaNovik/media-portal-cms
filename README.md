@@ -77,14 +77,14 @@ java -jar target/media-portal-cms-0.0.1-SNAPSHOT.jar
 
 4. **Проверка работоспособности**
 - API: http://localhost:8080
-- Swagger UI: http://localhost:8080/swagger-ui.html
+- Swagger UI: http://localhost:8080/swagger-ui/index.html
 - Health: http://localhost:8080/actuator/health
 
 ## 📚 API документация
 
 После запуска приложения доступна интерактивная документация:
-- **Swagger UI**: http://localhost:8080/swagger-ui.html
-- **OpenAPI JSON**: http://localhost:8080/api-docs
+- **Swagger UI**: http://localhost:8080/swagger-ui/index.html
+- **OpenAPI JSON**: http://localhost:8080/v3/api-docs
 
 ### Основные эндпоинты
 
@@ -124,6 +124,111 @@ curl -X POST http://localhost:8080/api/analytics/view/ARTICLE/1
 
 # Получение топ контента
 curl http://localhost:8080/api/recommendations/all
+```
+
+## 🎬 Демонстрация сценария использования
+
+### Полный сценарий работы с API
+
+#### Шаг 1: Запуск инфраструктуры
+```bash
+# Запуск PostgreSQL и Redis
+docker-compose up -d
+
+# Проверка контейнеров
+docker ps
+```
+
+#### Шаг 2: Запуск приложения
+```bash
+mvn spring-boot:run
+```
+
+#### Шаг 3: Регистрация и авторизация
+```bash
+# Регистрация нового пользователя
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"email":"demo@test.com","password":"demo123","name":"Demo User"}'
+
+# Вход и получение JWT токена
+curl -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"demo@test.com","password":"demo123"}'
+
+# Ответ: {"token":"eyJhbGciOiJIUzI1NiJ9...","email":"demo@test.com"}
+```
+
+#### Шаг 4: Создание контента (требуется токен)
+```bash
+# Создание статьи
+curl -X POST http://localhost:8080/api/articles \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{"title":"Spring Boot Guide","content":"Complete guide...","tags":["java","spring"]}'
+
+# Создание видео
+curl -X POST http://localhost:8080/api/videos \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <TOKEN>" \
+  -d '{"title":"Redis Tutorial","videoUrl":"https://youtube.com/...","duration":1800}'
+```
+
+#### Шаг 5: Просмотр контента (публичный доступ)
+```bash
+# Получение всех статей
+curl http://localhost:8080/api/articles
+
+# Получение статьи по ID (увеличивает счётчик просмотров)
+curl http://localhost:8080/api/articles/1
+```
+
+#### Шаг 6: Работа с Redis - аналитика
+```bash
+# Отслеживание просмотра (INCR + ZSET)
+curl -X POST http://localhost:8080/api/analytics/view/ARTICLE/1
+curl -X POST http://localhost:8080/api/analytics/view/ARTICLE/1
+curl -X POST http://localhost:8080/api/analytics/view/ARTICLE/2
+
+# Получение аналитики по контенту
+curl http://localhost:8080/api/analytics/content/ARTICLE/1
+# Ответ: {"contentType":"ARTICLE","contentId":1,"totalViews":2,"uniqueVisitorsToday":1,"currentRank":1}
+
+# Получение топ контента (ZSET reverseRange)
+curl http://localhost:8080/api/analytics/top/ARTICLE
+# Ответ: {"contentType":"ARTICLE","topContentIds":[1,2],"count":2}
+```
+
+#### Шаг 7: Проверка данных в Redis напрямую
+```bash
+# Подключение к Redis CLI
+docker exec -it media-portal-redis redis-cli
+
+# Проверка счётчика просмотров (INCR)
+GET views:total:article:1
+# Ответ: "2"
+
+# Проверка рейтинга (ZSET)
+ZREVRANGE ranking:hourly:article 0 -1 WITHSCORES
+# Ответ: 1) "1" 2) "2" 3) "2" 4) "1"
+
+# Проверка уникальных посетителей (SET)
+SMEMBERS visitors:daily:article:1
+
+# Проверка TTL
+TTL ranking:hourly:article
+# Ответ: время в секундах до истечения
+
+# Проверка кэша (@Cacheable)
+KEYS articles::*
+# Ответ: список закэшированных статей
+```
+
+#### Шаг 8: Рекомендации
+```bash
+# Получение топ контента всех типов
+curl http://localhost:8080/api/recommendations/all
+# Ответ: {"topArticles":[...],"topVideos":[...],"topPodcasts":[...]}
 ```
 
 ## 🔴 Redis возможности
