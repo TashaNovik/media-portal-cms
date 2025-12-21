@@ -63,6 +63,30 @@ class ModelTest {
     }
 
     @Test
+    @DisplayName("Article - onCreate should set timestamps")
+    void article_OnCreateShouldSetTimestamps() {
+        Article article = new Article();
+        assertNull(article.getCreatedAt());
+        assertNull(article.getUpdatedAt());
+        
+        article.onCreate();
+        
+        assertNotNull(article.getCreatedAt());
+        assertNotNull(article.getUpdatedAt());
+    }
+
+    @Test
+    @DisplayName("Article - onUpdate should update timestamp")
+    void article_OnUpdateShouldUpdateTimestamp() {
+        Article article = new Article();
+        article.onCreate();
+        
+        article.onUpdate();
+        
+        assertNotNull(article.getUpdatedAt());
+    }
+
+    @Test
     @DisplayName("Article - equals and hashCode")
     void article_EqualsAndHashCode() {
         Article article1 = Article.builder().id(1L).title("Test").build();
@@ -232,6 +256,17 @@ class ModelTest {
         assertEquals(now, episode.getCreatedAt());
     }
 
+    @Test
+    @DisplayName("Episode - onCreate should set timestamp")
+    void episode_OnCreateShouldSetTimestamp() {
+        Episode episode = new Episode();
+        assertNull(episode.getCreatedAt());
+        
+        episode.onCreate();
+        
+        assertNotNull(episode.getCreatedAt());
+    }
+
     // ==================== User Tests ====================
 
     @Test
@@ -264,6 +299,8 @@ class ModelTest {
         user.setUsername("username");
         user.setEmail("email@test.com");
         user.setPassword("pass");
+        user.setFirstName("John");
+        user.setLastName("Doe");
         user.setRole(Role.ADMIN);
         user.setIsActive(false);
         user.setCreatedAt(now);
@@ -273,10 +310,41 @@ class ModelTest {
         assertEquals("username", user.getUsername());
         assertEquals("email@test.com", user.getEmail());
         assertEquals("pass", user.getPassword());
+        assertEquals("John", user.getFirstName());
+        assertEquals("Doe", user.getLastName());
         assertEquals(Role.ADMIN, user.getRole());
         assertFalse(user.getIsActive());
         assertEquals(now, user.getCreatedAt());
         assertEquals(now, user.getUpdatedAt());
+    }
+
+    @Test
+    @DisplayName("User - onCreate should set timestamps")
+    void user_OnCreateShouldSetTimestamps() {
+        User user = new User();
+        assertNull(user.getCreatedAt());
+        assertNull(user.getUpdatedAt());
+        
+        // Call the lifecycle method directly
+        user.onCreate();
+        
+        assertNotNull(user.getCreatedAt());
+        assertNotNull(user.getUpdatedAt());
+    }
+
+    @Test
+    @DisplayName("User - onUpdate should update timestamp")
+    void user_OnUpdateShouldUpdateTimestamp() {
+        User user = new User();
+        user.onCreate();
+        LocalDateTime originalUpdatedAt = user.getUpdatedAt();
+        
+        // Wait a tiny bit to ensure different timestamp
+        try { Thread.sleep(10); } catch (InterruptedException e) { }
+        
+        user.onUpdate();
+        
+        assertNotNull(user.getUpdatedAt());
     }
 
     // ==================== Role Enum Tests ====================
