@@ -156,11 +156,11 @@ class DtoTest {
     @DisplayName("LoginRequest - should create with builder")
     void loginRequest_ShouldCreateWithBuilder() {
         LoginRequest request = LoginRequest.builder()
-                .email("test@example.com")
+                .username("testuser")
                 .password("password123")
                 .build();
 
-        assertEquals("test@example.com", request.getEmail());
+        assertEquals("testuser", request.getUsername());
         assertEquals("password123", request.getPassword());
     }
 
@@ -168,10 +168,10 @@ class DtoTest {
     @DisplayName("LoginRequest - should set and get properties")
     void loginRequest_ShouldSetAndGetProperties() {
         LoginRequest request = new LoginRequest();
-        request.setEmail("email@test.com");
+        request.setUsername("user");
         request.setPassword("pass");
 
-        assertEquals("email@test.com", request.getEmail());
+        assertEquals("user", request.getUsername());
         assertEquals("pass", request.getPassword());
     }
 
