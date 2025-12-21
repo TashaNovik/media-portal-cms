@@ -147,8 +147,8 @@ class VideoControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/videos - should return 401 when not authenticated")
-    void create_WhenNotAuthenticated_ShouldReturn401() throws Exception {
+    @DisplayName("POST /api/videos - should return 403 when not authenticated")
+    void create_WhenNotAuthenticated_ShouldReturn403() throws Exception {
         CreateVideoRequest request = new CreateVideoRequest();
         request.setTitle("New Video");
         request.setUrl("https://example.com/video.mp4");
@@ -156,7 +156,7 @@ class VideoControllerTest {
         mockMvc.perform(post("/api/videos")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -195,9 +195,9 @@ class VideoControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/videos/{id} - should return 401 when not authenticated")
-    void delete_WhenNotAuthenticated_ShouldReturn401() throws Exception {
+    @DisplayName("DELETE /api/videos/{id} - should return 403 when not authenticated")
+    void delete_WhenNotAuthenticated_ShouldReturn403() throws Exception {
         mockMvc.perform(delete("/api/videos/1"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 }

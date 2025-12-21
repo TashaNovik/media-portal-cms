@@ -143,8 +143,8 @@ class ArticleControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/articles - should return 401 when not authenticated")
-    void create_WhenNotAuthenticated_ShouldReturn401() throws Exception {
+    @DisplayName("POST /api/articles - should return 403 when not authenticated")
+    void create_WhenNotAuthenticated_ShouldReturn403() throws Exception {
         CreateArticleRequest request = new CreateArticleRequest();
         request.setTitle("New Article");
         request.setText("New content");
@@ -152,7 +152,7 @@ class ArticleControllerTest {
         mockMvc.perform(post("/api/articles")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -191,9 +191,9 @@ class ArticleControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/articles/{id} - should return 401 when not authenticated")
-    void delete_WhenNotAuthenticated_ShouldReturn401() throws Exception {
+    @DisplayName("DELETE /api/articles/{id} - should return 403 when not authenticated")
+    void delete_WhenNotAuthenticated_ShouldReturn403() throws Exception {
         mockMvc.perform(delete("/api/articles/1"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 }

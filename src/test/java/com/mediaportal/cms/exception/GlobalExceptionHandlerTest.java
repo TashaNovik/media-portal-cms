@@ -65,7 +65,7 @@ class GlobalExceptionHandlerTest {
     @DisplayName("Should handle BusinessException")
     void handleBusinessException_ShouldReturn400() {
         // Given
-        BusinessException ex = new BusinessException("Business error", "CUSTOM_ERROR");
+        BusinessException ex = new BusinessException("CUSTOM_ERROR", "Business error");
 
         // When
         ResponseEntity<ApiResponse<Object>> response = exceptionHandler.handleBusinessException(ex);

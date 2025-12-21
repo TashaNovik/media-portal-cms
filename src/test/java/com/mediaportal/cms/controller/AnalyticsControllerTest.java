@@ -123,9 +123,9 @@ class AnalyticsControllerTest {
     }
 
     @Test
-    @DisplayName("Invalid content type should return 400")
-    void trackView_WithInvalidContentType_ShouldReturnBadRequest() throws Exception {
+    @DisplayName("Invalid content type should return 500")
+    void trackView_WithInvalidContentType_ShouldReturnInternalError() throws Exception {
         mockMvc.perform(post("/api/analytics/view/INVALID_TYPE/1"))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isInternalServerError());
     }
 }

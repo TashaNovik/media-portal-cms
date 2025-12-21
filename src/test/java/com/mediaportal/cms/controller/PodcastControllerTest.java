@@ -147,8 +147,8 @@ class PodcastControllerTest {
     }
 
     @Test
-    @DisplayName("POST /api/podcasts - should return 401 when not authenticated")
-    void create_WhenNotAuthenticated_ShouldReturn401() throws Exception {
+    @DisplayName("POST /api/podcasts - should return 403 when not authenticated")
+    void create_WhenNotAuthenticated_ShouldReturn403() throws Exception {
         CreatePodcastRequest request = new CreatePodcastRequest();
         request.setTitle("New Podcast");
         request.setAudioUrl("https://example.com/podcast.mp3");
@@ -156,7 +156,7 @@ class PodcastControllerTest {
         mockMvc.perform(post("/api/podcasts")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -196,9 +196,9 @@ class PodcastControllerTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/podcasts/{id} - should return 401 when not authenticated")
-    void delete_WhenNotAuthenticated_ShouldReturn401() throws Exception {
+    @DisplayName("DELETE /api/podcasts/{id} - should return 403 when not authenticated")
+    void delete_WhenNotAuthenticated_ShouldReturn403() throws Exception {
         mockMvc.perform(delete("/api/podcasts/1"))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 }

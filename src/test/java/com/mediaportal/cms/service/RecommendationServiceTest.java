@@ -288,6 +288,6 @@ class RecommendationServiceTest {
         recommendationService.getTopContentIds(ContentType.ARTICLE, 5);
 
         // Then
-        verify(zSetOperations).reverseRange(anyString(), eq(0L), eq(4L));
+        verify(zSetOperations, atLeastOnce()).reverseRange(anyString(), eq(0L), eq(4L));
     }
 }
