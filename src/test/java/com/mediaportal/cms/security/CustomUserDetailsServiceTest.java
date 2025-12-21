@@ -129,17 +129,17 @@ class CustomUserDetailsServiceTest {
     }
 
     @Test
-    @DisplayName("Should handle MODERATOR role correctly")
-    void loadUserByUsername_WithModeratorRole_ShouldHaveModeratorAuthority() {
+    @DisplayName("Should handle EDITOR role correctly")
+    void loadUserByUsername_WithEditorRole_ShouldHaveEditorAuthority() {
         // Given
-        testUser.setRole(Role.MODERATOR);
-        when(userRepository.findByUsername("moderator")).thenReturn(Optional.of(testUser));
+        testUser.setRole(Role.EDITOR);
+        when(userRepository.findByUsername("editor")).thenReturn(Optional.of(testUser));
 
         // When
-        UserDetails userDetails = userDetailsService.loadUserByUsername("moderator");
+        UserDetails userDetails = userDetailsService.loadUserByUsername("editor");
 
         // Then
         assertTrue(userDetails.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_MODERATOR")));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_EDITOR")));
     }
 }

@@ -43,7 +43,7 @@ class GlobalExceptionHandlerTest {
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("RESOURCE_NOT_FOUND", response.getBody().getErrorCode());
+        assertEquals("RESOURCE_NOT_FOUND", response.getBody().getError().getCode());
     }
 
     @Test
@@ -58,7 +58,7 @@ class GlobalExceptionHandlerTest {
         // Then
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("ENTITY_NOT_FOUND", response.getBody().getErrorCode());
+        assertEquals("ENTITY_NOT_FOUND", response.getBody().getError().getCode());
     }
 
     @Test
@@ -73,7 +73,7 @@ class GlobalExceptionHandlerTest {
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertNotNull(response.getBody());
-        assertEquals("CUSTOM_ERROR", response.getBody().getErrorCode());
+        assertEquals("CUSTOM_ERROR", response.getBody().getError().getCode());
     }
 
     @Test
@@ -87,7 +87,7 @@ class GlobalExceptionHandlerTest {
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("BUSINESS_ERROR", response.getBody().getErrorCode());
+        assertEquals("BUSINESS_ERROR", response.getBody().getError().getCode());
     }
 
     @Test
@@ -101,7 +101,7 @@ class GlobalExceptionHandlerTest {
 
         // Then
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        assertEquals("UNAUTHORIZED", response.getBody().getErrorCode());
+        assertEquals("UNAUTHORIZED", response.getBody().getError().getCode());
     }
 
     @Test
@@ -115,7 +115,7 @@ class GlobalExceptionHandlerTest {
 
         // Then
         assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode());
-        assertEquals("ACCESS_DENIED", response.getBody().getErrorCode());
+        assertEquals("ACCESS_DENIED", response.getBody().getError().getCode());
     }
 
     @Test
@@ -129,7 +129,7 @@ class GlobalExceptionHandlerTest {
 
         // Then
         assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
-        assertEquals("BAD_CREDENTIALS", response.getBody().getErrorCode());
+        assertEquals("BAD_CREDENTIALS", response.getBody().getError().getCode());
     }
 
     @Test
@@ -143,7 +143,7 @@ class GlobalExceptionHandlerTest {
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("INVALID_ARGUMENT", response.getBody().getErrorCode());
+        assertEquals("INVALID_ARGUMENT", response.getBody().getError().getCode());
     }
 
     @Test
@@ -157,7 +157,7 @@ class GlobalExceptionHandlerTest {
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("BAD_REQUEST", response.getBody().getErrorCode());
+        assertEquals("BAD_REQUEST", response.getBody().getError().getCode());
     }
 
     @Test
@@ -184,7 +184,7 @@ class GlobalExceptionHandlerTest {
 
         // Then
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals("INTERNAL_ERROR", response.getBody().getErrorCode());
+        assertEquals("INTERNAL_ERROR", response.getBody().getError().getCode());
     }
 
     @Test
@@ -198,7 +198,7 @@ class GlobalExceptionHandlerTest {
 
         // Then
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals("INTERNAL_ERROR", response.getBody().getErrorCode());
+        assertEquals("INTERNAL_ERROR", response.getBody().getError().getCode());
     }
 
     @Test
@@ -217,6 +217,6 @@ class GlobalExceptionHandlerTest {
 
         // Then
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
-        assertEquals("VALIDATION_ERROR", response.getBody().getErrorCode());
+        assertEquals("VALIDATION_ERROR", response.getBody().getError().getCode());
     }
 }
