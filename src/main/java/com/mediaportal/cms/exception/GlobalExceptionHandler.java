@@ -99,6 +99,23 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error("INVALID_ARGUMENT", ex.getMessage()));
     }
 
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponse<Object>> handleRuntimeException(RuntimeException ex) {
+        log.warn("Runtime exception: {}", ex.getMessage());
+        // Handle common auth errors
+        if (ex.getMessage() != null && (
+                ex.getMessage().contains("already exists") ||
+                ex.getMessage().contains("not found") ||
+                ex.getMessage().contains("Invalid"))) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error("BAD_REQUEST", ex.getMessage()));
+        }
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(ApiResponse.error("INTERNAL_ERROR", ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<Object>> handleGenericException(Exception ex) {
         log.error("Unexpected error occurred", ex);
