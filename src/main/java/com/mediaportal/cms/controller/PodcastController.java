@@ -74,7 +74,7 @@ public class PodcastController {
     @Operation(summary = "Update a podcast")
     public ResponseEntity<PodcastResponse> update(
             @PathVariable Long id,
-            @RequestBody UpdatePodcastRequest request) {
+            @Valid @RequestBody UpdatePodcastRequest request) {
         return ResponseEntity.ok(podcastService.update(id, request));
     }
 

@@ -1,4 +1,108 @@
-# Media Portal CMS
+flowchart TB
+    subgraph Client["🌐 Client Layer"]
+        WEB[Web Browser]
+        MOBILE[Mobile App]
+        SWAGGER[Swagger UI]
+    end
+
+    subgraph Security["🔐 Security Layer"]
+        JWT_FILTER[JwtAuthenticationFilter]
+        JWT_PROVIDER[JwtTokenProvider]
+        USER_DETAILS[CustomUserDetailsService]
+    end
+
+    subgraph Controllers["🎮 Controller Layer"]
+        AUTH_CTRL[AuthController]
+        ARTICLE_CTRL[ArticleController]
+        VIDEO_CTRL[VideoController]
+        PODCAST_CTRL[PodcastController]
+        ANALYTICS_CTRL[AnalyticsController]
+        RECOMMEND_CTRL[RecommendationController]
+    end
+
+    subgraph Services["⚙️ Service Layer"]
+        AUTH_SVC[AuthService]
+        ARTICLE_SVC[ArticleService]
+        VIDEO_SVC[VideoService]
+        PODCAST_SVC[PodcastService]
+        ANALYTICS_SVC[AnalyticsService]
+        RECOMMEND_SVC[RecommendationService]
+    end
+
+    subgraph Repositories["📦 Repository Layer"]
+        USER_REPO[UserRepository]
+        ARTICLE_REPO[ArticleRepository]
+        VIDEO_REPO[VideoRepository]
+        PODCAST_REPO[PodcastRepository]
+        EPISODE_REPO[EpisodeRepository]
+    end
+
+    subgraph Storage["💾 Data Storage"]
+        POSTGRES[(PostgreSQL)]
+        REDIS[(Redis)]
+    end
+
+    %% Client connections
+    WEB & MOBILE & SWAGGER --> JWT_FILTER
+
+    %% Security flow
+    JWT_FILTER --> JWT_PROVIDER
+    JWT_FILTER --> USER_DETAILS
+    JWT_FILTER --> Controllers
+
+    %% Controller to Service connections
+    AUTH_CTRL --> AUTH_SVC
+    ARTICLE_CTRL --> ARTICLE_SVC
+    ARTICLE_CTRL --> ANALYTICS_SVC
+    VIDEO_CTRL --> VIDEO_SVC
+    VIDEO_CTRL --> ANALYTICS_SVC
+    PODCAST_CTRL --> PODCAST_SVC
+    PODCAST_CTRL --> ANALYTICS_SVC
+    ANALYTICS_CTRL --> ANALYTICS_SVC
+    RECOMMEND_CTRL --> RECOMMEND_SVC
+
+    %% Service dependencies
+    AUTH_SVC --> USER_REPO
+    AUTH_SVC --> JWT_PROVIDER
+    ARTICLE_SVC --> ARTICLE_REPO
+    ARTICLE_SVC --> USER_REPO
+    VIDEO_SVC --> VIDEO_REPO
+    VIDEO_SVC --> USER_REPO
+    PODCAST_SVC --> PODCAST_REPO
+    PODCAST_SVC --> EPISODE_REPO
+    PODCAST_SVC --> USER_REPO
+    
+    RECOMMEND_SVC --> ARTICLE_SVC
+    RECOMMEND_SVC --> VIDEO_SVC
+    RECOMMEND_SVC --> PODCAST_SVC
+    RECOMMEND_SVC --> REDIS
+
+    ANALYTICS_SVC --> REDIS
+
+    %% Repository to Storage
+    USER_REPO & ARTICLE_REPO & VIDEO_REPO & PODCAST_REPO & EPISODE_REPO --> POSTGRES
+
+    %% Redis operations
+    ANALYTICS_SVC -.->|INCR, ZSET, SET| REDIS
+    RECOMMEND_SVC -.->|ZREVRANGE| REDIS
+    ARTICLE_SVC -.->|@Cacheable| REDIS
+    VIDEO_SVC -.->|@Cacheable| REDIS
+    PODCAST_SVC -.->|@Cacheable| REDIS
+
+    %% Styling
+    classDef client fill:#e1f5fe,stroke:#01579b
+    classDef security fill:#fff3e0,stroke:#e65100
+    classDef controller fill:#e8f5e9,stroke:#1b5e20
+    classDef service fill:#f3e5f5,stroke:#4a148c
+    classDef repo fill:#fce4ec,stroke:#880e4f
+    classDef storage fill:#fff8e1,stroke:#ff6f00
+
+    class WEB,MOBILE,SWAGGER client
+    class JWT_FILTER,JWT_PROVIDER,USER_DETAILS security
+    class AUTH_CTRL,ARTICLE_CTRL,VIDEO_CTRL,PODCAST_CTRL,ANALYTICS_CTRL,RECOMMEND_CTRL controller
+    class AUTH_SVC,ARTICLE_SVC,VIDEO_SVC,PODCAST_SVC,ANALYTICS_SVC,RECOMMEND_SVC service
+    class USER_REPO,ARTICLE_REPO,VIDEO_REPO,PODCAST_REPO,EPISODE_REPO repo
+    class POSTGRES,REDIS storage# Media Portal CMS
 
 > CMS-система для медиа-портала с поддержкой статей, видео и подкастов.
 > Проект выполнен в рамках курсов "язык Java" и "Нереляционные базы данных" МФТИ.

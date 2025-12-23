@@ -70,7 +70,7 @@ public class VideoController {
     @Operation(summary = "Update a video")
     public ResponseEntity<VideoResponse> update(
             @PathVariable Long id,
-            @RequestBody UpdateVideoRequest request) {
+            @Valid @RequestBody UpdateVideoRequest request) {
         return ResponseEntity.ok(videoService.update(id, request));
     }
 
