@@ -57,10 +57,9 @@ CREATE TABLE IF NOT EXISTS episodes (
     description TEXT,
     audio_url VARCHAR(500) NOT NULL,
     duration_seconds INTEGER,
-    episode_number INTEGER NOT NULL,
+    episode_number INTEGER,
     podcast_id BIGINT NOT NULL REFERENCES podcasts(id) ON DELETE CASCADE,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Indexes for better query performance
