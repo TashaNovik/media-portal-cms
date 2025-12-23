@@ -71,7 +71,7 @@ public class ArticleController {
     @Operation(summary = "Update an article")
     public ResponseEntity<ArticleResponse> update(
             @PathVariable Long id,
-            @RequestBody UpdateArticleRequest request) {
+            @Valid @RequestBody UpdateArticleRequest request) {
         return ResponseEntity.ok(articleService.update(id, request));
     }
 
